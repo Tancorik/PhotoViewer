@@ -2,9 +2,11 @@ package com.example.wowtancorik.photoviewer;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
 import com.example.wowtancorik.photoviewer.Data.DownloadManager;
 import com.example.wowtancorik.photoviewer.Interfaces.IDownloadManager;
@@ -33,19 +35,22 @@ public class RecyclerActivity extends AppCompatActivity implements IDownloadMana
 
         recyclerView.setAdapter(mAdapter);
 
-        DownloadManager downloadManager = DownloadManager.getInstance();
+        final DownloadManager downloadManager = DownloadManager.getInstance();
         downloadManager.initDownloadManager(this);
 
-        downloadManager.loadPhoto(mURLCollection, 1, 10, 1);
+        Thread newTread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                downloadManager.loadPhoto(mURLCollection, 1, 1);
+            }
+        });
+        newTread.start();
     }
 
     @Override
     public void CallbackPhotos(List<Bitmap> bitmapList) {
-        if (bitmapList == null) {
-            mEnd = true;
-            return;
-        }
         mAdapter.addToRecyclerView(bitmapList);
         mAdapter.notifyDataSetChanged();
     }
+
 }

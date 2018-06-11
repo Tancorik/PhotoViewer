@@ -1,6 +1,8 @@
 package com.example.wowtancorik.photoviewer.Data;
 
 import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.example.wowtancorik.photoviewer.Interfaces.IDownloadManager;
@@ -15,12 +17,15 @@ import java.util.concurrent.Future;
 public class DownloadManager implements IDownloadManager {
 
     private final String LOG_TAG = "myLogs";
+    private final int MAX_PHOTO_COUNT = 100;
+    private final int COUNT_POOL_THREADS = 10;
 
     private final int SMALL_SIZE    = 1;
     private final int BIG_SIZE      = 2;
     private String mAlbums = "";
     private IPhotosRequest mPhotoRequest;
     private List<PhotoInformation> mPhotoInfoList = new ArrayList<>();
+    private ExecutorService mExecutor;
 
     private static class SingletonHolder {
         private static final DownloadManager HOLDER_INSTANCE = new DownloadManager();
@@ -36,75 +41,70 @@ public class DownloadManager implements IDownloadManager {
     }
 
     @Override
-    public void loadPhoto(String album, int number, int count, int size) {
+    public void loadPhoto(String album, int number, int size) {
         if (!mAlbums.equals(album)) {
             mAlbums = album;
             mPhotoInfoList.clear();
             Log.i(LOG_TAG, mAlbums);
             loadInfo();
         }
-        List<Bitmap> list = loadBitmap(number, count, size);
-        mPhotoRequest.CallbackPhotos(list);
 
+        if (size == SMALL_SIZE) {
+            int count;
+            mExecutor = Executors.newFixedThreadPool(COUNT_POOL_THREADS);
+            for (int i = 0; i < mPhotoInfoList.size(); i += COUNT_POOL_THREADS) {
+                if ((mPhotoInfoList.size() - i < COUNT_POOL_THREADS)) {
+                    count = mPhotoInfoList.size() - i;
+                }
+                else {
+                    count = COUNT_POOL_THREADS;
+                }
+                final List<Bitmap> list = loadBitmapList(i, count);
+
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPhotoRequest.CallbackPhotos(list);
+                    }
+                });
+            }
+            mExecutor.shutdown();
+        }
+        else {
+
+        }
     }
 
     private void loadInfo() {
         StringParser stringParser = new StringParser();
         NextPageSearch nextPageSearch = new NextPageSearch();
-        ExecutorService executor = Executors.newFixedThreadPool(1);
-        Future<String> future;
-        String string = mAlbums + "?limit=10";
+        InfoLoader infoLoader = new InfoLoader();
+        String stringNextPage = mAlbums + "?limit=10";
+        String stringForParse;
         while (true) {
-            future = executor.submit(new InfoLoader(string));
-            try {
-                string = future.get();
-            } catch (InterruptedException e) {
-                Log.i(LOG_TAG, "проблемы в loadInfo <-- DownloadManager");
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                Log.i(LOG_TAG, "проблемы в loadInfo <-- DownloadManager");
-                e.printStackTrace();
-            }
-            mPhotoInfoList.addAll(stringParser.parse(string));
-            string = nextPageSearch.returnNextPage(string);
-            if (string == null) break;
+            stringForParse = infoLoader.loadInfoFromAPI(stringNextPage);
+            mPhotoInfoList.addAll(stringParser.parse(stringForParse));
+            stringNextPage = nextPageSearch.returnNextPage(stringForParse);
+            if (stringNextPage == null) break;
+            if (mPhotoInfoList.size() >= MAX_PHOTO_COUNT) break;
         }
-        executor.shutdown();
     }
 
-    private List<Bitmap> loadBitmap(int number, int count, int size) {
-        if (number > mPhotoInfoList.size()) {
-            return null;
-        }
-        if ((mPhotoInfoList.size() - number) < count) {
-            count = mPhotoInfoList.size() - number;
-        }
-        ExecutorService executor = Executors.newFixedThreadPool(count);
+    private List<Bitmap> loadBitmapList(int number, int count) {
         List<Future<Bitmap>> futures = new ArrayList<>();
         List<Bitmap> bitmaps = new ArrayList<>();
         String urlString;
-        number--;
         for (int i = number ; i < number+count; i++){
-            if (size == SMALL_SIZE) {
                 urlString = mPhotoInfoList.get(i).getSmallSizeHref();
-            }
-            else {
-                urlString = mPhotoInfoList.get(i).getBigSizeHref();
-            }
-            futures.add(executor.submit(new BitmapLoader(urlString)));
+            futures.add(mExecutor.submit(new BitmapLoader(urlString)));
         }
-        for (int i = 0; i < count; i++){
+        for (int i = 0; i <futures.size(); i++){
             try {
                 bitmaps.add(futures.get(i).get());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
-
         }
-        executor.shutdown();
-
         return bitmaps;
     }
 }

@@ -12,6 +12,7 @@ public class NextPageSearch {
             jsonObject = jsonObject.getJSONObject("links");
             nextPage = jsonObject.getString("next");
         } catch (JSONException e) {
+            e.printStackTrace();
             nextPage = null;
         }
         return nextPage;

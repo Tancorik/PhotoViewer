@@ -11,22 +11,15 @@ import java.net.URL;
 import java.util.concurrent.Callable;
 
 
-public class InfoLoader implements Callable<String> {
+public class InfoLoader {
 
     private final String LOG_TAG = "myLogs in InfoLoader";
     private final String ACCEPT = "application/json";
 
-    private String mUrl;
-
-    public InfoLoader(String url) {
-        mUrl = url;
-    }
-
-    @Override
-    public String call() throws Exception {
+    public String loadInfoFromAPI(String url) {
         String result = null;
         try {
-            HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(mUrl).openConnection();
+            HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
             httpURLConnection.setRequestProperty("Accept", ACCEPT);
             try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()))) {
                 String line;
