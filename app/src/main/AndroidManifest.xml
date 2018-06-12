@@ -21,6 +21,10 @@
         <activity android:name=".RecyclerActivity">
 
         </activity>
+        <activity android:name=".PagerActivity"
+            android:theme = "@style/Theme.AppCompat.DayNight.NoActionBar">
+
+        </activity>
     </application>
 
 </manifest>

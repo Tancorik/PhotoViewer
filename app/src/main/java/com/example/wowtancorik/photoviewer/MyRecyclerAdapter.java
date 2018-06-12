@@ -1,6 +1,8 @@
 package com.example.wowtancorik.photoviewer;
 
 import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,9 +16,10 @@ import java.util.List;
 public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.ViewHolder> {
 
     private List<Bitmap> mBitmapList = new ArrayList<>();
+    private IRecyclerAdapterWorkListener mRecyclerAdapterWorkListener;
 
-    MyRecyclerAdapter() {
-
+    MyRecyclerAdapter(IRecyclerAdapterWorkListener recyclerAdapterWorkListener) {
+        mRecyclerAdapterWorkListener = recyclerAdapterWorkListener;
     }
 
     public void addToRecyclerView(List<Bitmap> bitmapList) {
@@ -31,8 +34,23 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         holder.mImageView.setImageBitmap(mBitmapList.get(position));
+        holder.mImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRecyclerAdapterWorkListener.onItemClick(position);
+            }
+        });
+
+        if (position == mBitmapList.size()-1) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    mRecyclerAdapterWorkListener.onLastPositionVisible(position);
+                }
+            });
+        }
     }
 
     @Override
@@ -46,5 +64,10 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Vi
             super(itemView);
             mImageView = itemView.findViewById(R.id.image_view);
         }
+    }
+
+    interface IRecyclerAdapterWorkListener {
+        void onLastPositionVisible(int lastPosition);
+        void onItemClick(int position);
     }
 }

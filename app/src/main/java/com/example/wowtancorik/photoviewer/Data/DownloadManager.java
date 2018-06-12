@@ -16,8 +16,7 @@ import java.util.concurrent.Future;
 
 public class DownloadManager implements IDownloadManager {
 
-    public static final int SMALL_SIZE    = 1;
-    public static final int BIG_SIZE      = 2;
+    private final int COUNT_PHOTO_IN_PARTY = 10;
 
     private final String LOG_TAG = "myLogs";
     private final int MAX_PHOTO_COUNT = 100;
@@ -28,7 +27,6 @@ public class DownloadManager implements IDownloadManager {
     private List<PhotoInformation> mPhotoInfoList = new ArrayList<>();
     private MyThread mThread;
 
-
     private static class SingletonHolder {
         private static final DownloadManager HOLDER_INSTANCE = new DownloadManager();
     }
@@ -38,7 +36,7 @@ public class DownloadManager implements IDownloadManager {
     }
 
     @Override
-    public void setRequest(IPhotosCallback photosCallback) {
+    public void setPhotosCallback(IPhotosCallback photosCallback) {
         if (mThread == null) {
             throw new NullPointerException("поток еще не создан");
         }
@@ -46,12 +44,10 @@ public class DownloadManager implements IDownloadManager {
     }
 
     @Override
-    public void loadPhoto(final String album, final int number, final int size, IPhotosCallback photosCallback) {
+    public void loadSmallPhotos(final String album, final int startNumber, IPhotosCallback photosCallback) {
         mThread = new MyThread(new MyRunnable(photosCallback) {
             @Override
             public void run() {
-
-
                 if (!mAlbum.equals(album)) {
                     mAlbum = album;
                     mPhotoInfoList.clear();
@@ -59,38 +55,65 @@ public class DownloadManager implements IDownloadManager {
                     loadInfo();
                 }
 
-                if (size == SMALL_SIZE) {
-                    int count;
+                int count = refineCountInParty(startNumber);
+                if (count > 0) {
+
                     ExecutorService executor = Executors.newFixedThreadPool(COUNT_POOL_THREADS);
-                    for (int i = 0; i < mPhotoInfoList.size(); i += COUNT_POOL_THREADS) {
-                        if ((mPhotoInfoList.size() - i < COUNT_POOL_THREADS)) {
-                            count = mPhotoInfoList.size() - i;
-                        }
-                        else {
-                            count = COUNT_POOL_THREADS;
-                        }
-                        if (mPhotosCallback == null) {
-                            break;
-                        }
-                        final List<Bitmap> list = loadBitmapList(i, count, executor);
+
+                    if (mPhotosCallback != null) {
+                        final List<Bitmap> list = loadBitmapList(startNumber, count, executor);
 
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
                                 if (mPhotosCallback != null) {
-                                    mPhotosCallback.onPhotosLoaded(list);
+                                    mPhotosCallback.onPhotosLoaded(list, mPhotoInfoList.size());
                                 }
                             }
                         });
                     }
                     executor.shutdown();
                 }
-                else {
-
-                }
             }
         });
         mThread.start();
+    }
+
+    @Override
+    public void loadBigPhoto(final int number, final ISinglePhotoCallback singlePhotoCallback) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ExecutorService executor = Executors.newFixedThreadPool(1);
+                Future<Bitmap> bitmapFuture;
+                String urlString = mPhotoInfoList.get(number).getBigSizeHref();
+                bitmapFuture = executor.submit(new BitmapLoader(urlString));
+                Bitmap bitmap = null;
+                try {
+                    bitmap = bitmapFuture.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+                executor.shutdown();
+                final Bitmap bitmapfinal = bitmap;
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        singlePhotoCallback.onSinglePhotoLoaded(bitmapfinal);
+                    }
+                });
+
+            }
+        }).start();
+    }
+
+    private int refineCountInParty(int startNumber) {
+        if ((mPhotoInfoList.size() - startNumber < COUNT_PHOTO_IN_PARTY)) {
+            return mPhotoInfoList.size() - startNumber;
+        }
+        else {
+            return COUNT_PHOTO_IN_PARTY;
+        }
     }
 
     private void loadInfo() {
