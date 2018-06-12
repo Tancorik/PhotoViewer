@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/welcome_text_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/new_interesting_button"
+        android:textSize="28sp"
+        android:textAlignment="center"
+        android:text="Добро пожаловать.\nВам доступны две коллекции из\n Яндекс.Фото."/>
+
+    <Button
+        android:id="@+id/new_interesting_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/welcome_text_view"
+        app:layout_constraintBottom_toTopOf="@id/popular_button"
+        android:textSize="22sp"
+        android:text="Новые интерессные фото"
+        />
+
+    <Button
+        android:id="@+id/popular_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/new_interesting_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="22sp"
+        android:text="Популярные фото"/>
+    
+</android.support.constraint.ConstraintLayout>

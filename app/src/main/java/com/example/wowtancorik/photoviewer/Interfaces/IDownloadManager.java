@@ -6,11 +6,13 @@ import java.util.List;
 
 public interface IDownloadManager {
 
-    void initDownloadManager(IPhotosRequest photosRequest);
+    void setRequest(IPhotosCallback photosCallback);
 
-    void loadPhoto(String album, int number, int size);
+    void loadPhoto(String album, int number, int size, IPhotosCallback photosCallback);
 
-    interface IPhotosRequest {
-        void CallbackPhotos(List<Bitmap> bitmapList);
+
+
+    interface IPhotosCallback {
+        void onPhotosLoaded(List<Bitmap> bitmapList);
     }
 }
