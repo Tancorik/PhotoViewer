@@ -13,6 +13,12 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Адаптер для RecyclerView, который отображает маленькие фотографии
+ *
+ * * Create by Aleksandr Karpachev
+ */
+
 public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.ViewHolder> {
 
     private List<Bitmap> mBitmapList = new ArrayList<>();
@@ -66,6 +72,9 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Vi
         }
     }
 
+    /**
+     * Интерфейс следит за событиями адаптера
+     */
     interface IRecyclerAdapterWorkListener {
         void onLastPositionVisible(int lastPosition);
         void onItemClick(int position);

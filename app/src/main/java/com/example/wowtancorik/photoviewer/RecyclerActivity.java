@@ -16,6 +16,18 @@ import java.util.List;
 
 import static com.example.wowtancorik.photoviewer.MainFragment.TRANSFER_KEY;
 
+/**
+ * Активити для показа маленьких фоток в RecyclerView
+ * Начально показывает 10 фотографий, при проматываении Recycler до крайней фотки подгружаются
+ * еще одна партия из 10 фотографий, и так пока весь альбом не загрузиться.
+ * При повороте экрана загрузка фотографий начинается сначала.
+ * При нажатии на фотографию открывается следущая активити которая показывает выбранную фотку
+ * в большем разрешении, и в которой есть возможность просматривать фотки с большим разрешением
+ * с помощью ViewPager.
+ *
+ * * Create by Aleksandr Karpachev
+ */
+
 public class RecyclerActivity extends AppCompatActivity implements IDownloadManager.IPhotosCallback,
         MyRecyclerAdapter.IRecyclerAdapterWorkListener {
 

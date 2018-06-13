@@ -10,6 +10,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.Callable;
 
+/**
+ * Класс загружает фотографии по URL
+ * implement Callable так что работает с Executor и Future для пула потоков.
+ *
+ * Create by Aleksandr Karpachev
+ *
+ */
 public class BitmapLoader implements Callable<Bitmap> {
 
     private final String LOG_TAG = "myLogs";

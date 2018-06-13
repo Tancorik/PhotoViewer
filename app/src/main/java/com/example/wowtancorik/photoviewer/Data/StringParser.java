@@ -9,6 +9,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Класс распарсивает строку и возвращает список с информацией о фотографиях
+ *
+ * * Create by Aleksandr Karpachev
+ */
+
 public class StringParser {
 
     private final String LOG_TAG = "myLogs";

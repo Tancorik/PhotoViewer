@@ -10,6 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import static com.example.wowtancorik.photoviewer.RecyclerActivity.COUNT_PHOTO_KEY;
 import static com.example.wowtancorik.photoviewer.RecyclerActivity.NUMBER_PHOTO_KEY;
 
+/**
+ * Активити отображает фотографии большого разрешения с возможностью перелистывания
+ * с помощью ViewPager
+ *
+ * * Create by Aleksandr Karpachev
+ */
 public class PagerActivity extends AppCompatActivity {
 
     @Override

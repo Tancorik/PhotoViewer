@@ -10,6 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+/**
+ * Фрагмент для стартовой активити
+ * Содержит выбор альбома для просмотра
+ *
+ * * Create by Aleksandr Karpachev
+ */
+
 public class MainFragment  extends Fragment {
 
     public static final String TRANSFER_KEY = "transfer_key_to_RecyclerActivity";

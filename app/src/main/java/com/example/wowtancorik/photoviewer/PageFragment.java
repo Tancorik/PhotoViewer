@@ -13,6 +13,12 @@ import android.widget.ImageView;
 import com.example.wowtancorik.photoviewer.Data.DownloadManager;
 import com.example.wowtancorik.photoviewer.Interfaces.IDownloadManager;
 
+/**
+ * Фрагмент для ViewPager, отображает большую фоторафию
+ *
+ * * Create by Aleksandr Karpachev
+ */
+
 public class PageFragment extends Fragment implements IDownloadManager.ISinglePhotoCallback{
 
     public static final String POSITION_KEY = "position_key";
@@ -42,6 +48,11 @@ public class PageFragment extends Fragment implements IDownloadManager.ISinglePh
         downloadManager.loadBigPhoto(mPosition, this);
     }
 
+    /**
+     * как только фотография загрузилась сразу отображается
+     *
+     * @param photo
+     */
     @Override
     public void onSinglePhotoLoaded(Bitmap photo) {
         mImageView.setImageBitmap(photo);

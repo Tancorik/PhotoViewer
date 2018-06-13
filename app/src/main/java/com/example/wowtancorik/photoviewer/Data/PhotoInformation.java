@@ -1,13 +1,16 @@
 package com.example.wowtancorik.photoviewer.Data;
 
+/**
+ *
+ * Класс хранит URL для малькой и для большой фотографии
+ *
+ * * Create by Aleksandr Karpachev
+ */
+
 public class PhotoInformation {
 
     private String mSmallSizeHref;
     private String mBigSizeHref;
-
-    public PhotoInformation() {
-
-    }
 
     public PhotoInformation(String smallSizeHref, String bigSizeHref) {
         mSmallSizeHref = smallSizeHref;

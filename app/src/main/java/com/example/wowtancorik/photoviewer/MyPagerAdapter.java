@@ -4,6 +4,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+/**
+ * Адаптер для ViewPager. Работает с фрагментом отображающим большую фотографию
+ *
+ * * Create by Aleksandr Karpachev
+ */
 public class MyPagerAdapter extends FragmentStatePagerAdapter{
 
     private int mCount;

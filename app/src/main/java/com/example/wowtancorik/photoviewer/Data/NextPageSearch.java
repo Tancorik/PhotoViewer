@@ -3,6 +3,12 @@ package com.example.wowtancorik.photoviewer.Data;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Класс пытается найти URL следующей страницы для загрзки с API
+ *
+ * * Create by Aleksandr Karpachev
+ */
+
 public class NextPageSearch {
 
     public String returnNextPage(String string) {

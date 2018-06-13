@@ -14,6 +14,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+/**
+ * Класс организовывает загрузку и обработки данных в отдельном потоке.
+ * Возвращает партию маленьких фотографий или одну большую, в зависимости от вызываемого метода
+ *
+ * * Create by Aleksandr Karpachev
+ */
 public class DownloadManager implements IDownloadManager {
 
     private final int COUNT_PHOTO_IN_PARTY = 10;
@@ -22,11 +28,13 @@ public class DownloadManager implements IDownloadManager {
     private final int MAX_PHOTO_COUNT = 100;
     private final int COUNT_POOL_THREADS = 10;
 
-
     private String mAlbum = "";
     private List<PhotoInformation> mPhotoInfoList = new ArrayList<>();
     private MyThread mThread;
 
+    /**
+     * класс определен как синглтон
+     */
     private static class SingletonHolder {
         private static final DownloadManager HOLDER_INSTANCE = new DownloadManager();
     }
@@ -35,14 +43,34 @@ public class DownloadManager implements IDownloadManager {
         return SingletonHolder.HOLDER_INSTANCE;
     }
 
+    /**
+     * Установить callback для партии маленьких фоток
+     * и передать в поток который обрабатывает запрос и возвращает
+     *
+     * @param photosCallback        callback для маленьких фоток
+     */
     @Override
     public void setPhotosCallback(IPhotosCallback photosCallback) {
         if (mThread == null) {
             throw new NullPointerException("поток еще не создан");
         }
-        mThread.setRequest(photosCallback);
+        mThread.setCallback(photosCallback);
     }
 
+    /**
+     * Огранизация загрузки и отправки партии маленьки фоток
+     * запускает пул из COUNT_POOL_THREADS потоков для загрузки фотографий
+     * и ставит отправку в очередь главного потока.
+     * Если активити пересоздаться, а отправка ей стоит в очереди, то
+     * отправка не произойдет. Для этого активит передате нулевой callback.
+     * Тем самым мы исключаем нежданные фотографии в пересозданную активити.
+     * Пересозданная активити вновь вызывает этот метод и получает только те фотографии, которые
+     * запросила.
+     *
+     * @param album             URL альбома
+     * @param startNumber       начальная позиция фотографии в альбоме(списке фоток)
+     * @param photosCallback    callback для маленьких фоток
+     */
     @Override
     public void loadSmallPhotos(final String album, final int startNumber, IPhotosCallback photosCallback) {
         mThread = new MyThread(new MyRunnable(photosCallback) {
@@ -79,6 +107,12 @@ public class DownloadManager implements IDownloadManager {
         mThread.start();
     }
 
+    /**
+     * Загрузка одной большой фотографии
+     *
+     * @param number                номер фотографии в списке
+     * @param singlePhotoCallback   callback для большой фотографии
+     */
     @Override
     public void loadBigPhoto(final int number, final ISinglePhotoCallback singlePhotoCallback) {
         new Thread(new Runnable() {
@@ -107,6 +141,13 @@ public class DownloadManager implements IDownloadManager {
         }).start();
     }
 
+    /**
+     * Переопределяет количество маленьких фотографий в партии, если вдруг в списке
+     * осталось меньше фоток чем размер партии
+     *
+     * @param startNumber       стартовый номер фотографии в списке
+     * @return
+     */
     private int refineCountInParty(int startNumber) {
         if ((mPhotoInfoList.size() - startNumber < COUNT_PHOTO_IN_PARTY)) {
             return mPhotoInfoList.size() - startNumber;
@@ -116,6 +157,10 @@ public class DownloadManager implements IDownloadManager {
         }
     }
 
+    /**
+     * Организовывает постраничную загрузку информации с API
+     * распарсивание этой информации для получения URL маленьких и больших фотографий
+     */
     private void loadInfo() {
         StringParser stringParser = new StringParser();
         NextPageSearch nextPageSearch = new NextPageSearch();
@@ -131,6 +176,15 @@ public class DownloadManager implements IDownloadManager {
         }
     }
 
+    /**
+     * Загружаем фотографии вызывая BitmapLoader в пуле потоков
+     * для ускорения загрузки партии маленьких фотографий
+     *
+     * @param number        номер первой фотографии партии в списке фотографий
+     * @param count         количество фотографий
+     * @param executor      экземпляр пула потоков
+     * @return              возвращает список (партию) фотографий списком Bitmap-ов
+     */
     private List<Bitmap> loadBitmapList(int number, int count, ExecutorService executor) {
         List<Future<Bitmap>> futures = new ArrayList<>();
         List<Bitmap> bitmaps = new ArrayList<>();
@@ -149,6 +203,11 @@ public class DownloadManager implements IDownloadManager {
         return bitmaps;
     }
 
+    /**
+     * Определяем класс потока содержащий определенный Runnable, в который
+     * передает callback, что бы для каждого потока был свой callback,
+     * и когда в потоке callback станет null поток завершится.
+     */
     private class MyThread extends Thread {
         MyRunnable myRunnable;
 
@@ -157,8 +216,8 @@ public class DownloadManager implements IDownloadManager {
             myRunnable = runnable;
         }
 
-        private void setRequest(IPhotosCallback photosCallback) {
-            myRunnable.setPhotosRequestOther(photosCallback);
+        private void setCallback(IPhotosCallback photosCallback) {
+            myRunnable.setPhotosCallbackOther(photosCallback);
         }
     }
 
@@ -169,7 +228,7 @@ public class DownloadManager implements IDownloadManager {
             this.mPhotosCallback = photosCallback;
         }
 
-        public void setPhotosRequestOther(IPhotosCallback photosCallback) {
+        public void setPhotosCallbackOther(IPhotosCallback photosCallback) {
             this.mPhotosCallback = photosCallback;
         }
     }
