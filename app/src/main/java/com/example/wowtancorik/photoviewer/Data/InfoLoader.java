@@ -17,8 +17,8 @@ import java.net.URL;
 
 public class InfoLoader {
 
-    private final String LOG_TAG = "myLogs in InfoLoader";
-    private final String ACCEPT = "application/json";
+    private static final String LOG_TAG = "myLogs in InfoLoader";
+    private static final String ACCEPT = "application/json";
 
     public String loadInfoFromAPI(String url) {
         String result = null;

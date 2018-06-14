@@ -22,8 +22,8 @@ public class MainFragment  extends Fragment {
     public static final String TRANSFER_KEY = "transfer_key_to_RecyclerActivity";
 
     public static final String TAG = "Main_Fragment";
-    private final String NEW_PHOTO = "http://api-fotki.yandex.ru/api/recent/";
-    private final String POPULAR_PHOTO = "http://api-fotki.yandex.ru/api/top/";
+    private static final String NEW_PHOTO = "http://api-fotki.yandex.ru/api/recent/";
+    private static final String POPULAR_PHOTO = "http://api-fotki.yandex.ru/api/top/";
 
     public static MainFragment newInstance() {
         return new MainFragment();

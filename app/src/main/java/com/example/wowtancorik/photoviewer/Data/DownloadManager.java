@@ -22,11 +22,11 @@ import java.util.concurrent.Future;
  */
 public class DownloadManager implements IDownloadManager {
 
-    private final int COUNT_PHOTO_IN_PARTY = 10;
+    private static final int COUNT_PHOTO_IN_PARTY = 10;
 
-    private final String LOG_TAG = "myLogs";
-    private final int MAX_PHOTO_COUNT = 100;
-    private final int COUNT_POOL_THREADS = 10;
+    private static final String LOG_TAG = "myLogs";
+    private static final int MAX_PHOTO_COUNT = 100;
+    private static final int COUNT_POOL_THREADS = 10;
 
     private String mAlbum = "";
     private List<PhotoInformation> mPhotoInfoList = new ArrayList<>();

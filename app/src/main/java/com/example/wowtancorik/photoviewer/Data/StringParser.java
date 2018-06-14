@@ -17,11 +17,11 @@ import java.util.List;
 
 public class StringParser {
 
-    private final String LOG_TAG = "myLogs";
-    private final String ENTRY_KYE = "entries";
-    private final String SMALL_SIZE_KEY = "S";
-    private final String BIG_SIZE_KEY = "XXL";
-    private final String HREF_KEY = "href";
+    private static final String LOG_TAG = "myLogs";
+    private static final String ENTRY_KYE = "entries";
+    private static final String SMALL_SIZE_KEY = "S";
+    private static final String BIG_SIZE_KEY = "XXL";
+    private static final String HREF_KEY = "href";
 
     public StringParser() {
 

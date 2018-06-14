@@ -19,7 +19,7 @@ import java.util.concurrent.Callable;
  */
 public class BitmapLoader implements Callable<Bitmap> {
 
-    private final String LOG_TAG = "myLogs";
+    private static final String LOG_TAG = "myLogs";
     private String mUrl;
 
     public BitmapLoader(String url) {
